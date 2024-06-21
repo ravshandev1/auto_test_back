@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <style>
+        .theme-link {
+            color: black;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            text-decoration: none;
+            border-bottom: 1px solid #e0e0e0;
+            margin: 0;
+            gap: 12px;
+        }
+
+        h2 {
+            font-weight: 500;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 12px;
+        }
+        
+        .theme_num{
+            padding-right: 12px;
+        }
+        
+    </style>
+</head>
+<body style="background-color: #fbfbfb">
+<h2>{{ title }}</h2>
+{% for theme in themes %}
+    <a class="theme-link" href="/api/v1/results/{{ user }}/?theme_id={{ theme.id }}&lang={{ lang }}"><p>{{ theme.name }}</p>
+        <span class="theme_num">{{ theme.count }}</span></a>
+{% endfor %}
+</body>
+<script>
+    localStorage.setItem('quiz', JSON.stringify([]))
+    localStorage.setItem('counter', 0)
+</script>
+</html>

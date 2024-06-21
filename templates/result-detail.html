@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .quiz_text_name {
+            color: #000;
+            font-size: 26px;
+            margin-bottom: 12px;
+        }
+
+        .quiz_text {
+            margin-top: 12px;
+            align-items: center;
+
+            .quiz_text_h {
+                width: 100%;
+                font-size: 16px;
+            }
+
+            .quiz_text_p {
+                margin-top: 6px;
+            width: 100%;
+                font-size: 18px;
+                font-weight: 700;
+            }
+
+        }
+
+        .quiz_text_date {
+            margin: 12px 0;
+            color: grey;
+        }
+
+        .quiz_text_btn_a {
+            text-decoration: none;
+            color: #fff;
+            border-radius: 12px;
+            padding: 8px 12px;
+            background: #3333ff;
+        }
+
+        .quiz_text_btn {
+            margin-top: 24px;
+        }
+
+        .quiz_text_box {
+            margin-top: 18px;
+            padding: 12px;
+            padding-bottom: 24px;
+            border-radius: 12px;
+            border: 1px solid grey;
+        }
+
+        .ans_box {
+            padding: 12px;
+            margin-top: 12px;
+            border: 1px solid #5a5a5a;
+            border-radius: 12px;
+        }
+
+        .ans_name {
+            font-size: 24px;
+            padding: 12px;
+        }
+
+        .ans_h_2 {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid green;
+            background-color: rgba(0, 128, 0, 0.75);
+        }
+
+        .ans_h_3 {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid red;
+            background-color: rgba(255, 0, 0, 0.78);
+        }
+
+        .ans_h {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid grey;
+
+        }
+
+        .quiz_img{
+            margin: 12px 0;
+            width: 100%;
+        }
+
+
+    </style>
+</head>
+<body style="background-color: #fff">
+<div class="quiz_text_box">
+    <div class="quiz_text_name">{{ id }}</div>
+    <div class="quiz_text">
+        <div class="quiz_text_h">{{ theme }} <span class="quiz_text_p">{{ theme_name }}</span></div>
+    </div>
+    <div class="quiz_text">
+        <div class="quiz_text_h">{{ correct_answers_name }} <span class="quiz_text_p">{{ correct_answers_count }}</span></div>
+    </div>
+    <div class="quiz_text_date">{{ created_at }}</div>
+</div>
+{% for i in quizzes %}
+    <div class="ans_box">
+        {% if i.image %}
+            <img class="quiz_img" src="{{ i.image }}" alt="#">
+        {% endif %}
+        <div class="ans_name">{{ i.name }}</div>
+        {% for j in i.answers %}
+            {% if j.is_correct %}
+                <div class="ans_h_2">{{ j.name }}</div>
+            {% else %}
+                {% if j.user_selected %}
+                    <div class="ans_h_3">{{ j.name }}</div>
+                {% else %}
+                    <div class="ans_h">{{ j.name }}</div>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endfor %}
+</body>
+</html>

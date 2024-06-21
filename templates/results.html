@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Questions</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        .quiz-text-status {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            width: 100%;
+        }
+
+        .hero {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 8px;
+        }
+
+        .hero-name {
+            font-size: 26px;
+            font-weight: 500;
+        }
+
+        .hero-count {
+            color: #5a5a5a;
+            font-size: 16px;
+            line-height: 5px;
+        }
+
+        .hero-link {
+            display: flex;
+            justify-content: center;
+            text-align: center;
+            max-width: 80px !important;
+            padding: 8px 10px;
+            background-color: #3434f8;
+            color: white;
+            font-size: 14px;
+            line-height: 22px;
+            border-radius: 8px;
+        }
+
+        .quiz_text_name {
+            color: #000;
+            font-size: 26px;
+            margin-bottom: 12px;
+        }
+
+        .quiz_text {
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+
+            .quiz_text_h {
+                font-size: 16px;
+            }
+
+            .quiz_text_p {
+                font-size: 18px;
+                font-weight: 700;
+            }
+        }
+
+        .quiz_text_date {
+            margin: 12px 0;
+            color: grey;
+        }
+
+        .quiz_text_btn_a {
+            text-decoration: none;
+            color: #fff;
+            border-radius: 12px;
+            padding: 8px 12px;
+            background: #3333ff;
+        }
+
+        .quiz_text_btn {
+            margin-top: 24px;
+        }
+
+        .quiz_text_box {
+            margin-top: 18px;
+            padding: 12px;
+            padding-bottom: 24px;
+            border-radius: 12px;
+            border: 1px solid grey;
+        }
+        
+        .quiz_mess{
+            margin-top: 12px;
+            font-size: 18px;
+            padding: 24px 12px;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            text-align: center;
+        }
+        
+    </style>
+</head>
+<body style="background-color: #fff">
+<div class="hero">
+    <div class="hero-left">
+        <p class="hero-name">{{ theme_name }}</p>
+        <p class="hero-count">{{ theme_count }}</p>
+    </div>
+    <div onclick="check_subscription()" class="hero-link">{{ start_btn_name }}</div>
+</div>
+{% if quizzes %}
+    {% for i in quizzes %}
+        <div class="quiz_text_box">
+            <div class="quiz_text_name">{{ i.id }}</div>
+            <div class="quiz_text">
+                <div class="quiz_text_h">{{ theme }} <span class="quiz_text_p">{{ i.theme_name }}</span></div>
+            </div>
+            <div class="quiz_text">
+                <div class="quiz_text_h">{{ i.correct_answers_name }} <span class="quiz_text_p">{{ i.correct_answers_count }}</span></div>
+            </div>
+            <div class="quiz_text_date">{{ i.created_at }}</div>
+            <div class="quiz_text_btn">
+                <a href="/api/v1/result-detail/{{ i.quiz_id }}/?lang={{ lang }}&theme_id={{ theme_id }}"
+                   class="quiz_text_btn_a">{{ result_btn_name }}</a>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="quiz_mess">{{ mes }}</div>
+{% endif %}
+</body>
+<script>
+    function check_subscription() {
+        let params = new URLSearchParams(window.location.search)
+        let lang = params.get('lang')
+        $.ajax({
+            url: '/api/v1/check/{{ user }}/',
+            method: 'get',
+            success: function () {
+                $.ajax({
+                    url: "/api/v1/questions-check/{{ theme_id }}/",
+                    method: 'get',
+                    contentType: 'application/json',
+                    success: function () {
+                        localStorage.setItem('num', "1")
+                        window.location.href = "/api/v1/quiz/{{ theme_id }}/?lang={{ lang }}&user={{ user }}"
+                    },
+                    error: function () {
+                        if (lang === 'ru') {    
+                            alert("К этой теме еще не добавлены вопросы")
+                        } else {
+                            alert("Бу мавзуга ҳали саволлар қўшилмаган")
+                        }
+                    }
+                })
+            },
+            error: function () {
+                if (lang === 'ru') {
+                    alert("❌ Мы приносим свои извинения. Активируйте подписку и повторите попытку.")
+                } else {
+                    alert("❌ Узр сўраймиз. Илтимос обунани активлаштириб сўнгра қайта уриниб кўринг.")
+                }
+            }
+        })
+    }
+</script>
+</html>

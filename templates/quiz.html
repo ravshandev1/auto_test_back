@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+
+        .quiz_box {
+            padding-top: 72px;
+            padding-bottom: 64px;
+        }
+
+        .quiz_nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            padding: 12px;
+            font-size: 26px;
+            background-color: #fff;
+        }
+
+        .quiz_down {
+            justify-content: flex-start;
+            overflow: auto;
+            flex-wrap: nowrap;
+            white-space: nowrap;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            padding: 12px 0;
+            display: flex;
+            gap: 12px;
+            background: #fff;
+        }
+
+        .quiz_down_2 {
+            justify-content: center;
+            overflow: auto;
+            flex-wrap: nowrap;
+            white-space: nowrap;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            padding: 12px 0;
+            display: flex;
+            gap: 12px;
+            background: #fff;
+        }
+
+        .quiz_down_num {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background-color: #eae5e5;
+            font-size: 18px;
+
+        }
+
+        .quiz_down_num_active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background-color: #b1adad;
+            font-size: 18px;
+        }
+
+        .quiz_down_num_2 {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            font-size: 18px;
+            background: green;
+        }
+
+        .quiz_down_num_3 {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            font-size: 18px;
+            background: red;
+        }
+
+        .quiz_main_h {
+            font-size: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid grey;
+
+        }
+
+        .quiz_main_p {
+            padding: 12px;
+            font-size: 18px;
+            margin-top: 12px;
+            text-align: center;
+            background: #e8e8e8;
+            border-radius: 12px;
+        }
+
+        .quiz_main_p_2 {
+            background: green;
+            padding: 12px;
+            font-size: 18px;
+            margin-top: 12px;
+            text-align: center;
+            border-radius: 12px;
+        }
+
+        .quiz_main_p_3 {
+            background: red;
+            padding: 12px;
+            font-size: 18px;
+            margin-top: 12px;
+            text-align: center;
+            border-radius: 12px;
+        }
+
+        .quiz_img {
+            margin-bottom: 24px;
+            width: 100%;
+        }
+
+        .quiz_top {
+            margin-top: 64px;
+        }
+
+
+    </style>
+</head>
+<body style="background-color: #fff">
+<div class="quiz_top">
+</div>
+<div class="quiz_box">
+    <div class="quiz_nav">
+        {{ theme_name }}
+    </div>
+
+    <div class="quiz_main">
+    <div id="quiz_img">
+    {% if question.image %}
+        <img id="quiz_image" class="quiz_img" src="{{ question.image }}" alt="#">
+{#    {% else %}#}
+{#        <img id="quiz_image" class="quiz_img" src="" alt="#">#}
+    {% endif %}
+    </div>
+        <div class="quiz_main_h">
+            <b id="quiz_question">{{ question.name }}</b>
+        </div>
+        <div id="quiz_answers" class="{{ question.id }}">
+            {% for i in answers %}
+                <div id="ans{{ i.id }}" class="quiz_main_p"
+                     onclick="handleAnswerClick(this, {{ question | safe }}, {{ i | safe }}, {{ answers | safe }})">
+                    {{ i.name | safe }}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="quiz_down">
+        {% for i in question_count %}
+            <div id="num{{ i }}" class="quiz_down_num" onclick="page_num({{ i }})">
+                {{ i }}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+</body>
+<script>
+    window.onload = function () {
+        let num = localStorage.getItem('num')
+        let down_num_element = document.getElementById(`num${num}`)
+        down_num_element.className = "quiz_down_num_active"
+        if ({{ qs_count | safe }} <= 9) {
+            let num_element = document.querySelector('.quiz_down')
+            num_element.className = "quiz_down_2"
+        }
+    }
+
+    function get_quiz() {
+        if (localStorage.getItem('quiz')) {
+            return JSON.parse(localStorage.getItem('quiz'))
+        } else {
+            localStorage.setItem('quiz', JSON.stringify([]))
+            return []
+        }
+    }
+    
+    function get_counter() {
+        if (localStorage.getItem('counter')) {
+            return JSON.parse(localStorage.getItem('counter'))
+        } else {
+            return 0
+        }
+    }
+    
+    function handleAnswerClick(element, question, answer, answers) {
+        if (!element.parentElement.classList.contains('clicked')) {
+            add_to_answers(element, question, answer, answers);
+        }
+    }
+
+    function page_num(num) {
+        let quiz = get_quiz()
+        let num_element = document.getElementById(`num${num}`)
+        num_element.className = "quiz_down_num_active"
+        localStorage.setItem('num', num)
+        for (let i = 1; i <= {{ qs_count }}; i++) {
+            let obj = quiz.find(o => o.question.num === i)
+            let n_element = document.getElementById(`num${i}`)
+            if (obj) {
+                if (obj.answer.is_correct === 1) {
+                    n_element.className = "quiz_down_num_2"
+                } else {
+                    n_element.className = "quiz_down_num_3"
+                }
+            } else if (num === i){
+                n_element.className = "quiz_down_num_active"
+            }
+            else {
+                n_element.className = "quiz_down_num"
+            }
+        }
+        $.ajax({
+            url: `/api/v1/quiz-content/{{ theme_id }}/?lang={{ lang }}&user={{ user }}&num=${num}`,
+            method: 'GET',
+            success: function (response) {
+                updateQuizContent(response.question, response.answers, num);
+
+                for (let j = 0; j < response.answers.length; j++) {
+                    let obj = response.answers[j]
+                    let element = document.getElementById(`ans${obj.id}`)
+                    let ans = quiz.find(o => o.answer.id === obj.id)
+                    if (ans) {
+                        element.parentElement.classList.add('clicked')
+                        if (ans.answer.is_correct === 1) {
+                            element.className = "quiz_main_p_2"
+                        } else {
+                            let correct_answer = response.answers.find(o => o.is_correct === 1)
+                            let correct_element = document.getElementById(`ans${correct_answer.id}`)
+                            correct_element.className = "quiz_main_p_2"
+                            element.className = "quiz_main_p_3"
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function updateQuizContent(question, answers, num) {
+        let quiz = get_quiz()
+        const quizImage = document.getElementById('quiz_img')
+        quizImage.innerHTML = ''
+        if (question.image) {
+            let img = document.createElement('img')
+            img.src = question.image;
+            img.className = 'quiz_img';
+            img.style.display = 'block';
+            quizImage.appendChild(img)
+        }
+        document.getElementById('quiz_question').textContent = question.name;
+        const quizAnswers = document.getElementById('quiz_answers');
+        quizAnswers.innerHTML = '';
+        answers.forEach(answer => {
+                const answerDiv = document.createElement('div');
+                answerDiv.id = `ans${answer.id}`;
+                answerDiv.className = 'quiz_main_p';
+                answerDiv.onclick = () => handleAnswerClick(answerDiv, question, answer, answers);
+                answerDiv.textContent = answer.name;
+                quizAnswers.appendChild(answerDiv);
+                let ans = quiz.find(o => o.question.num === num)
+                if (ans) {
+                    answerDiv.parentElement.classList.add('clicked')
+                    if (ans.answer.is_correct === 1) {
+                        answerDiv.className = "quiz_main_p_2"
+                    } else {
+                        let correct_answer = answers.find(o => o.is_correct === 1)
+                        let correct_answer_element = document.getElementById(`ans${correct_answer.id}`)
+                        correct_answer_element.className = "quiz_main_p_2"
+                        answerDiv.className = "quiz_main_p_3"
+                    }
+                } else {
+                    answerDiv.parentElement.classList.remove('clicked')
+                }
+
+            }
+        );
+    }
+
+    function add_to_answers(element, question, answer, answers) {
+        let quiz = get_quiz()
+        let counter = get_counter()
+        let num = localStorage.getItem('num')
+        counter = counter + 1
+        let num_element = document.getElementById(`num${num}`)
+        quiz.push({
+            'question': {id: question.id, num: Number(num)},
+            'answer': {id: answer.id, is_correct: answer.is_correct}
+        })
+        localStorage.setItem('quiz', JSON.stringify(quiz))
+        if (answer.is_correct === 1) {
+            num_element.className = "quiz_down_num_2"
+            element.className = "quiz_main_p_2"
+        } else {
+            let obj = answers.find(o => o.is_correct === 1)
+            element.className = "quiz_main_p_3"
+            num_element.className = "quiz_down_num_3"
+            let correct_answer_element = document.getElementById(`ans${obj.id}`)
+            correct_answer_element.className = "quiz_main_p_2"
+        }
+        element.parentElement.classList.add('clicked')
+        if (counter === {{ qs_count | safe }}) {
+            $.ajax({
+                url: '/api/v1/quiz-answers/{{ user }}/?lang={{ lang }}&theme_id={{ theme_id }}',
+                data: JSON.stringify({'quiz': quiz}),
+                dataType: 'json',
+                contentType: 'application/json',
+                method: 'post',
+                success: function (response) {
+                    window.location.href = response.url;
+                },
+            })
+        }
+        localStorage.setItem('counter', counter)
+    }
+</script>
+</html>
